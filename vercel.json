@@ -1,8 +1,11 @@
 {
+  "installCommand": "",
+  "buildCommand": "",
   "outputDirectory": ".",
   "functions": {
     "api/collect.py": { "maxDuration": 60 },
-    "api/collect_readwise.py": { "maxDuration": 60 }
+    "api/collect_readwise.py": { "maxDuration": 60 },
+    "api/health.py": {}
   },
   "crons": [
     { "path": "/api/collect", "schedule": "0 */2 * * *" }
