@@ -1,4 +1,4 @@
-import requests
+import requests  # type: ignore[import-untyped]
 from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
 import logging
@@ -37,18 +37,27 @@ class ReadwiseCollector(BaseCollector):
 
         headers = { 'Authorization': f"Token {self.config['api_token']}" }
 
-        params: Dict[str, Any] = { 'category': 'article' }
+        params: Dict[str, Any] = {
+            'withHtmlContent': 'true',  # Request full HTML per Reader API
+        }
 
         if 'location' in self.config:
             params['location'] = self.config['location']
 
-        if 'last_sync_date' in self.sync_metadata:
-            params['updated__gt'] = self.sync_metadata['last_sync_date']
+        # For feed, always fetch the latest entries (no incremental filter)
+        if 'last_sync_date' in self.sync_metadata and params.get('location') != 'feed':
+            # Reader API supports incremental sync via 'updatedAfter'
+            params['updatedAfter'] = self.sync_metadata['last_sync_date']
 
         next_url = f"{self.API_BASE_URL}/list/"
+        # Limit when pulling the feed; default to 100, configurable via config.max_items
+        if params.get('location') == 'feed':
+            limit = int(self.config.get('max_items', 100))
+        else:
+            limit = 1000
         total_fetched = 0
 
-        while next_url and total_fetched < 1000:
+        while next_url and total_fetched < limit:
             try:
                 response = requests.get(
                     next_url,
@@ -81,8 +90,7 @@ class ReadwiseCollector(BaseCollector):
     def _parse_article(self, item: Dict[str, Any]) -> Optional[Article]:
         """Parse Readwise item into Article object"""
         try:
-            if item.get('category') != 'article':
-                return None
+            # Accept all categories when pulling from Readwise
 
             content = self._extract_content(item)
 
@@ -117,7 +125,14 @@ class ReadwiseCollector(BaseCollector):
             return None
 
     def _extract_content(self, item: Dict[str, Any]) -> str:
-        """Extract and clean content from Readwise item"""
+        """Extract and clean content from Readwise item
+        # Reason: Prefer full HTML when available; otherwise build a clean text fallback.
+        """
+        # Prefer full HTML content when requested via withHtmlContent=true
+        html_content = item.get('html_content')
+        if html_content:
+            return html_content  # Do not trim/truncate HTML
+
         content = item.get('content', '')
 
         if not content:
@@ -132,6 +147,7 @@ class ReadwiseCollector(BaseCollector):
             lines = [line.strip() for line in content.split('\n')]
             content = '\n'.join(line for line in lines if line)
 
+        # Cap plain-text content for safety; HTML is returned unmodified above
         return content[:10000]
 
 

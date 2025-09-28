@@ -16,7 +16,7 @@ def main():
         source_config = {
             'id': 'test-source-id',
             'name': 'Readwise Reader',
-            'config': { 'api_token': os.environ.get('READWISE_TOKEN'), 'location': 'archive' },
+            'config': { 'api_token': os.environ.get('READWISE_TOKEN'), 'location': 'feed' },
             'sync_metadata': {}
         }
         collector = ReadwiseCollector(source_config)

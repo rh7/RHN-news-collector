@@ -31,6 +31,22 @@ Python service that collects articles from configured sources (starting with Rea
 ### Environment
 See `.env.example` for required variables.
 
+#### Readwise Reader
+- Set `READWISE_TOKEN` in your environment. The Readwise collector requests full article HTML using `withHtmlContent=true` and performs incremental syncs using `updatedAfter` based on the source's `sync_metadata.last_sync_date`.
+
+#### Feed collection (Reader)
+- Default source is the Reader Feed (`location: feed`).
+- The collector fetches up to `max_items` per run (default `100`).
+- Configure via environment:
+  - `READWISE_TOKEN` — required
+  - `READER_FEED_MAX_ITEMS` — optional, defaults to `100`
+- De-duplication is enforced at write time using `contents` unique key `(source_id, external_id)` with upserts.
+
+### Scheduling
+- Vercel cron is configured to run hourly.
+  - See `vercel.json` → `crons: [{ path: "/api/collect", schedule: "0 * * * *" }]`.
+
+
 
 ### Hacker News configuration
 - **HN_LIST**: which list to fetch (`new`, `top`, or `best`). Default: `top`.

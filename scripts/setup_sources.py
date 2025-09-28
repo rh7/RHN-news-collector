@@ -18,7 +18,8 @@ def setup_sources():
             'enabled': True,
             'config': {
                 'api_token': os.environ.get('READWISE_TOKEN'),
-                'location': 'archive',
+                'location': 'feed',
+                'max_items': int(os.environ.get('READER_FEED_MAX_ITEMS', '100')),
             }
         },
         {

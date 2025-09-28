@@ -14,5 +14,7 @@ Date: 2025-09-28
 
 ### Discovered During Work
 - [ ] Ensure imports avoid fragile relative paths; use package-style imports (`collectors.*`, `core.*`).
+- [x] Readwise: request full HTML via `withHtmlContent=true` and use `updatedAfter` for incremental sync (2025-09-28)
+- [x] Switch Reader source to `location=feed`, fetch up to 100 items/hour, dedupe via upsert (2025-09-28)
 
 
