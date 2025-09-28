@@ -1,0 +1,13 @@
+{
+  "buildCommand": "pip install -r requirements.txt",
+  "outputDirectory": ".",
+  "installCommand": "pip install -r requirements.txt",
+  "functions": {
+    "api/collect.py": { "maxDuration": 60 },
+    "api/collect_readwise.py": { "maxDuration": 60 }
+  },
+  "crons": [
+    { "path": "/api/collect", "schedule": "0 */2 * * *" }
+  ]
+}
+
