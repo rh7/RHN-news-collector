@@ -14,6 +14,35 @@ logger = logging.getLogger(__name__)
 
 def handler(request):
     """Vercel handler function"""
+    # Optional protection: if CRON_SECRET is set, require it via query or header
+    cron_secret = os.environ.get('CRON_SECRET')
+    if cron_secret:
+        try:
+            # Vercel provides request as a dict-like with 'query' and 'headers' in Python functions
+            # Fall back defensively if shape differs
+            query = {}
+            headers = {}
+            if isinstance(request, dict):
+                query = (request.get('query') or
+                         request.get('queryStringParameters') or {})
+                headers = (request.get('headers') or {})
+
+            provided = None
+            if isinstance(query, dict):
+                provided = query.get('secret') or provided
+            if isinstance(headers, dict):
+                provided = headers.get('x-cron-secret') or headers.get('X-CRON-SECRET') or provided
+
+            if provided != cron_secret:
+                return {
+                    'statusCode': 403,
+                    'body': {'error': 'Forbidden'}
+                }
+        except Exception:
+            return {
+                'statusCode': 403,
+                'body': {'error': 'Forbidden'}
+            }
     logger.info(f"Collection triggered at {datetime.utcnow()}")
 
     try:

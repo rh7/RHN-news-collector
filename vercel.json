@@ -4,7 +4,7 @@
     { "src": "api/*.py", "use": "@vercel/python" }
   ],
   "crons": [
-    { "path": "/api/collect?x-vercel-set-bypass-cookie=true&x-vercel-protection-bypass=1RDGnvLhvoi3PsLIAW9xMAxLbhsHXI6h", "schedule": "0 * * * *" }
+    { "path": "/api/collect?secret=d4a433104f05695b790db033ce240f2b", "schedule": "0 * * * *" }
   ]
 }
 
